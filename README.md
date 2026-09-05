@@ -5,14 +5,14 @@ TypeScript SDK for the [Lucent](https://lucent.finance) delta-neutral staking pr
 ## Installation
 
 ```bash
-npm install @lucent/sdk @solana/web3.js @solana/spl-token
+npm install lucent-sdk @solana/web3.js @solana/spl-token
 ```
 
 ## Quick Start
 
 ```ts
 import { Connection } from '@solana/web3.js'
-import { LucentClient } from '@lucent/sdk'
+import { LucentClient } from 'lucent-sdk'
 
 const connection = new Connection('https://api.mainnet-beta.solana.com')
 
