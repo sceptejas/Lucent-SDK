@@ -212,3 +212,32 @@ export function computeReceiptAmount(amount: bigint, stakeRate: bigint): bigint 
 export function computePayoutAmount(receiptAmount: bigint, unstakeRate: bigint): bigint {
   return (receiptAmount * unstakeRate) / 100_000n
 }
+
+/**
+ * Price of one receipt token in terms of the underlying stake token.
+ *
+ * Uses the `unstakeRate` — the rate at which receipts are redeemed —
+ * so it reflects what 1 lmUSD / lmSOL is actually worth right now.
+ *
+ * Example: if unstakeRate = 101_000, then 1 lmUSD = 1.01 USDC.
+ *
+ * @param unstakeRate - Pool's current unstakeRate (from fetchPool)
+ * @returns Price as a plain number (e.g. 1.01)
+ */
+export function receiptTokenPrice(unstakeRate: bigint): number {
+  return Number(unstakeRate) / 100_000
+}
+
+/**
+ * Price of one stake token in terms of receipt tokens (inverse of receiptTokenPrice).
+ *
+ * Uses the `stakeRate` — how many receipts you get per unit staked.
+ *
+ * Example: if stakeRate = 100_000, then 1 USDC = 1.0 lmUSD.
+ *
+ * @param stakeRate - Pool's current stakeRate (from fetchPool)
+ * @returns Price as a plain number (e.g. 1.0)
+ */
+export function stakeTokenPrice(stakeRate: bigint): number {
+  return 100_000 / Number(stakeRate)
+}

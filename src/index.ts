@@ -45,6 +45,8 @@ export {
   queuePosition,
   computeReceiptAmount,
   computePayoutAmount,
+  receiptTokenPrice,
+  stakeTokenPrice,
 } from './queries'
 
 // High-level client

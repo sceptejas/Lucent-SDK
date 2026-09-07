@@ -64,10 +64,16 @@ Each function returns a `TransactionInstruction` ready to add to a `Transaction`
 ### Read Functions
 
 ```ts
-import { fetchPool, fetchClaimsForUser, deriveClaimState } from '@lucent/sdk'
+import { fetchPool, fetchClaimsForUser, deriveClaimState, receiptTokenPrice, stakeTokenPrice } from 'lucent-sdk'
 
 // Fetch pool state
 const pool = await fetchPool(connection, 0) // 0 = USDC, 1 = SOL
+
+// Price of 1 lmUSD in USDC (reflects accrued yield)
+const lmUsdPrice = receiptTokenPrice(pool.unstakeRate) // e.g. 1.01
+
+// Price of 1 USDC in lmUSD
+const usdcPrice = stakeTokenPrice(pool.stakeRate) // e.g. 1.0
 
 // Fetch all claims for a user
 const claims = await fetchClaimsForUser(connection, walletPublicKey)
