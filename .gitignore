@@ -3,3 +3,6 @@ dist
 .env
 *.key
 *.json.secret
+
+# codama scratch target
+.codama-tmp
