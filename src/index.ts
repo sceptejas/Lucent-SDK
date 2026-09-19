@@ -26,12 +26,18 @@ export {
   type PoolMetadata,
 } from './config'
 
+export { estimatePriorityFee, isHeliusEndpoint, type PriorityFeeLevel } from './actions/fees'
+export { ActionFailedError, describeProgramError, type SimulationResult } from './actions/plan'
+export type { ActionPlan } from './actions/plan'
+export { applySlippage } from './actions'
+
 export {
   createLucentClient,
   findAssociatedTokenAddress,
   type HistoryResult,
   type LucentClient,
   type LucentClientConfig,
+  type WalletClaims,
   type PositionResult,
 } from './client'
 

@@ -46,6 +46,9 @@
     "@solana/kit": ">=8.0.0 <9"
   },
   "dependencies": {
+    "@solana-program/compute-budget": "^0.18.1",
+    "@solana-program/system": "^0.14.1",
+    "@solana-program/token": "^0.16.1",
     "@solana/program-client-core": "^8.3.0"
   },
   "devDependencies": {

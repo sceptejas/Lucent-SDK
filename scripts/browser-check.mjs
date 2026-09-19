@@ -70,7 +70,7 @@ const bundle = readFileSync(outfile, 'utf8')
 const globals = {
   // A standalone identifier, so `addressBytesBuffer` and `arrayBuffer` — both of
   // which appear in kit's own code — are not mistaken for the Node global.
-  'Buffer': /(?<![A-Za-z0-9_$.])Buffer\s*\./,
+  'Buffer': /(?<![A-Za-z0-9_$])(?:globalThis\.)?Buffer(?![A-Za-z0-9_$])/,
   'process.env': /(?<![A-Za-z0-9_$.])process\s*\.\s*env/,
   '__dirname': /(?<![A-Za-z0-9_$.])__dirname/,
   'node: builtin': /from\s*["']node:/,
@@ -81,14 +81,38 @@ for (const [label, pattern] of Object.entries(globals)) {
 }
 
 console.log('\n=== run it with the globals removed (the v0 failure) ===')
-// Node internals need `process`; the point is that the SDK must not, so it is
-// restored as a bare stub before the import and the API is exercised after.
-const savedProcess = globalThis.process
 const savedBuffer = globalThis.Buffer
+
+/**
+ * Neutralise the browser globals Node happens to provide, without booting them.
+ *
+ * Node 22+ exposes `fetch` and `WebSocket` through its internal undici build, and
+ * undici needs `Buffer`. Kit's browser websocket channel reads
+ * `globalThis.WebSocket` at module scope, so merely *importing* the bundle in
+ * Node boots undici and fails on the missing Buffer — a Node artifact, not an SDK
+ * defect: a browser has those globals natively.
+ *
+ * `defineProperty` is used rather than assignment because assigning to one of
+ * these lazy globals invokes Node's getter, which is the thing that boots undici.
+ * With them replaced, the only thing left that could need `Buffer` is our own
+ * code, which is exactly what this checks.
+ */
+for (const [name, value] of Object.entries({
+  WebSocket: class {},
+  fetch: () => {
+    throw new Error('network disabled during the browser import check')
+  },
+  Request: class {},
+  Response: class {},
+  Headers: class {},
+  FormData: class {},
+})) {
+  Object.defineProperty(globalThis, name, { value, configurable: true, writable: true })
+}
+
 try {
   // eslint-disable-next-line no-delete-var -- removing a global on purpose
   delete globalThis.Buffer
-  globalThis.process = { env: {} }
   // A browser page is a secure context; without this kit correctly refuses to do
   // Ed25519 work, and PDA derivation needs it.
   globalThis.isSecureContext = true
@@ -110,8 +134,11 @@ try {
 } catch (error) {
   const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
   ok('runs with no Buffer global', false, message.slice(0, 140))
+  // A gate that cannot name the culprit is not much of a gate.
+  if (error instanceof Error && error.stack) {
+    console.log(error.stack.split('\n').slice(1, 8).join('\n'))
+  }
 } finally {
-  globalThis.process = savedProcess
   if (savedBuffer) globalThis.Buffer = savedBuffer
   rmSync(work, { recursive: true, force: true })
 }
