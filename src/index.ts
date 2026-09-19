@@ -27,6 +27,46 @@ export {
 } from './config'
 
 export {
+  createLucentClient,
+  findAssociatedTokenAddress,
+  type HistoryResult,
+  type LucentClient,
+  type LucentClientConfig,
+  type PositionResult,
+} from './client'
+
+export { toPosition, isClosed, type Position, type PositionInFlight } from './position'
+
+export {
+  fetchHostedProfile,
+  type HistoryApiConfig,
+  type HostedActivity,
+  type HostedPosition,
+  type HostedProfile,
+} from './api'
+
+export {
+  RATE_DENOM,
+  formatAmount,
+  formatAmountExact,
+  formatPercent,
+  formatSignedAmount,
+  parseAmount,
+  percentOf,
+  receiptPrice,
+  stakePrice,
+} from './amounts'
+
+export {
+  HistoryApiError,
+  HistoryIncompleteError,
+  InvalidAccountError,
+  InvalidAmountError,
+  LucentError,
+  RpcError,
+} from './errors'
+
+export {
   findGlobalPda,
   findReceiptTokenPda,
   findReceiptMintPda,

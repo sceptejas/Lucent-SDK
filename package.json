@@ -31,7 +31,8 @@
     "verify:live": "tsx scripts/verify-live.ts",
     "check:browser": "node scripts/browser-check.mjs",
     "check:pack": "node scripts/check-pack.mjs",
-    "verify": "npm run typecheck && npm run codegen && npm run verify:codegen && npm run build && npm run check:browser && npm run check:pack && npx publint && npx attw --pack ."
+    "verify": "npm run typecheck && npm run codegen && npm run verify:codegen && npm run build && npm run check:browser && npm run check:pack && npx publint && npx attw --pack .",
+    "verify:position": "tsx scripts/verify-position.ts"
   },
   "keywords": [
     "solana",
