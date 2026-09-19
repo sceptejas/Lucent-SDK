@@ -36,6 +36,12 @@ jobs:
       - name: Codegen gate (discriminators, accounts, events, PDAs)
         run: npm run verify:codegen
 
+      # Fixture and property tests. Offline by design: the account and event
+      # fixtures are real bytes captured from mainnet, committed, so a busy RPC
+      # cannot turn this red.
+      - name: Tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
@@ -50,5 +56,7 @@ jobs:
       - name: publint
         run: npx publint
 
+      # `--profile node16` because engines require Node >= 20: node10 has no
+      # `exports` map, so it cannot resolve the ./keeper subpath by design.
       - name: Are the types wrong?
-        run: npx attw --pack .
+        run: npx attw --pack . --profile node16

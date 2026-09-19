@@ -15,7 +15,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs'
 
-import { createSolanaRpc, type Address } from '@solana/kit'
+import type { Address, ClusterUrl } from '@solana/kit'
 
 import { createLucentClient } from '../src/client'
 import {
@@ -43,7 +43,7 @@ function rpcUrl(): string {
 }
 
 const apiUrl = process.argv[2] ?? 'http://localhost:3000'
-const client = createLucentClient({ rpc: createSolanaRpc(rpcUrl()), apiUrl })
+const client = createLucentClient({ rpcUrl: rpcUrl() as ClusterUrl, apiUrl })
 
 let failures = 0
 const ok = (label: string, pass: boolean, detail = '') => {
@@ -105,7 +105,7 @@ for (const { label, address } of WALLETS) {
 }
 
 console.log('\n=== errors and boundaries ===')
-const noHistoryUrl = createLucentClient({ rpc: createSolanaRpc(rpcUrl()) })
+const noHistoryUrl = createLucentClient({ rpcUrl: rpcUrl() as ClusterUrl })
 try {
   await noHistoryUrl.getPosition('2qNjaYNaecnXLD5tTZy8yu26RN5mEJwmfjHLtKqtoJs4' as Address)
   ok('a missing apiUrl is refused', false, 'expected HistoryApiError')

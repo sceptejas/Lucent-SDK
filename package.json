@@ -41,8 +41,10 @@
     "verify:live": "tsx scripts/verify-live.ts",
     "check:browser": "node scripts/browser-check.mjs",
     "check:pack": "node scripts/check-pack.mjs",
-    "verify": "npm run typecheck && npm run codegen && npm run verify:codegen && npm run build && npm run check:browser && npm run check:pack && npx publint && npx attw --pack .",
-    "verify:position": "tsx scripts/verify-position.ts"
+    "verify": "npm run typecheck && npm run codegen && npm run verify:codegen && npm test && npm run build && npm run check:browser && npm run check:pack && npx publint && npx attw --pack . --profile node16",
+    "verify:position": "tsx scripts/verify-position.ts",
+    "test": "vitest run",
+    "capture": "tsx scripts/capture-fixtures.ts"
   },
   "keywords": [
     "solana",
@@ -73,7 +75,8 @@
     "publint": "^0.3.24",
     "tsup": "^8.0.0",
     "tsx": "^4.23.13",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.7"
   },
   "type": "module",
   "repository": {

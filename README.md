@@ -63,10 +63,15 @@ every read.
 ## Development
 
 ```bash
-npm run codegen        # regenerate src/generated from idls/sythstaking.json
-npm run verify:codegen # gate: discriminators, accounts, events and PDAs vs mainnet
-npm run verify:live    # read the deployed pools/global/claims from mainnet
-npm run verify         # everything CI runs
+npm test                  # 44 tests, offline (fixtures are captured mainnet bytes)
+npm run codegen           # regenerate src/generated from idls/sythstaking.json
+npm run verify:codegen    # gate: discriminators, accounts, events and PDAs vs mainnet
+npm run verify:live       # read the deployed pools/global/claims from mainnet
+npm run verify:position   # position maths against the hosted API + chain
+npm run verify:actions    # build every action and simulate it on mainnet (no keys)
+npm run verify            # everything CI runs (attw checked at --profile node16)
+
+npm run capture           # re-capture test fixtures (only when the layout changes)
 ```
 
 `idls/sythstaking.json` must be the **mainnet** IDL: upstream also carries one

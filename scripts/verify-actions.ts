@@ -17,7 +17,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs'
 
-import type { Address, Signature, TransactionPartialSigner } from '@solana/kit'
+import type { Address, ClusterUrl, Signature, TransactionPartialSigner } from '@solana/kit'
 
 import { createLucentClient } from '../src/client'
 import { formatAmount } from '../src/amounts'
@@ -57,7 +57,7 @@ const HOLDER = '2qNjaYNaecnXLD5tTZy8yu26RN5mEJwmfjHLtKqtoJs4' as Address
 const SOL_HOLDER = '8NgGEQ8pYX58HX6hZKXWdBPQWjstjVEQa54ksHSLwPQp' as Address
 
 const client = createLucentClient({
-  rpcUrl: rpcUrl() as never,
+  rpcUrl: rpcUrl() as ClusterUrl,
   signer: readOnlySigner(HOLDER),
   priorityFeeLevel: 'medium',
 })
@@ -124,7 +124,7 @@ ok('settle simulation is accepted by the program', settle.ok, settle.error ?? ''
 
 // ── a SOL-pool stake, which exercises the wrap/unwrap path
 const solClient = createLucentClient({
-  rpcUrl: rpcUrl() as never,
+  rpcUrl: rpcUrl() as ClusterUrl,
   signer: readOnlySigner(SOL_HOLDER),
   priorityFeeLevel: 'medium',
 })
@@ -137,7 +137,7 @@ console.log('\n=== the guard rails ===')
 // send() must refuse a transaction the program rejects, rather than paying for it
 try {
   const plan = await createLucentClient({
-    rpcUrl: rpcUrl() as never,
+    rpcUrl: rpcUrl() as ClusterUrl,
     signer: readOnlySigner(SOL_HOLDER),
   }).stake(0, parseAmount('1000000', 6)) // more USDC than the holder has
   await plan.send()
