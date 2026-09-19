@@ -25,6 +25,8 @@ import { fetchMaybeClaimRecord } from '../src/generated/accounts/claimRecord'
 import { fetchMaybePool, fetchPool } from '../src/generated/accounts/pool'
 import { findClaimRecordPda, findPoolPda } from '../src/pdas'
 
+import { resolveRpcUrlFor } from './rpc-url'
+
 const MAINNET = {
   GLOBAL: '8yp99agjgfUy9jfx5baZ2LD3QkZ4TQriHY8Qy7Ns1gmC' as Address,
   USDC_POOL: '3Cxcnyc7XqnfhnWu8FB7AU86VPZ2vifEvpju6aFveEG2' as Address,
@@ -33,15 +35,7 @@ const MAINNET = {
 }
 
 /** Local key if present, otherwise the public endpoint (reads only). */
-function rpcUrl(): string {
-  const envPath = '/Users/ghost/lucent-frontend/.env.local'
-  if (existsSync(envPath)) {
-    const match = readFileSync(envPath, 'utf8').match(/^HELIUS_API_KEY=(.+)$/m)
-    const key = match?.[1]?.trim()
-    if (key) return `https://mainnet.helius-rpc.com/?api-key=${key}`
-  }
-  return 'https://api.mainnet-beta.solana.com'
-}
+const rpcUrl = () => resolveRpcUrlFor('scripts/verify-live.ts')
 
 /** kit's Option<Address> is `{ __option: 'Some', value }` or `{ __option: 'None' }`. */
 function unwrapOptionAddress(option: unknown): string | null {

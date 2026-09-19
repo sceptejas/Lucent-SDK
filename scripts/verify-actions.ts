@@ -15,7 +15,6 @@
  *
  * Usage: npx tsx scripts/verify-actions.ts
  */
-import { existsSync, readFileSync } from 'node:fs'
 
 import type { Address, ClusterUrl, Signature, TransactionPartialSigner } from '@solana/kit'
 
@@ -26,14 +25,9 @@ import { LucentError } from '../src/errors'
 import { ActionFailedError } from '../src/actions/plan'
 import { POOLS } from '../src/config'
 
-function rpcUrl(): string {
-  const envPath = '/Users/ghost/lucent-frontend/.env.local'
-  if (existsSync(envPath)) {
-    const key = readFileSync(envPath, 'utf8').match(/^HELIUS_API_KEY=(.+)$/m)?.[1]?.trim()
-    if (key) return `https://mainnet.helius-rpc.com/?api-key=${key}`
-  }
-  return 'https://api.mainnet-beta.solana.com'
-}
+import { resolveRpcUrlFor } from './rpc-url'
+
+const rpcUrl = () => resolveRpcUrlFor('scripts/verify-actions.ts')
 
 /**
  * A signer that can never sign anything.

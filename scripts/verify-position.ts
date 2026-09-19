@@ -13,7 +13,6 @@
  *
  * Usage: npx tsx scripts/verify-position.ts [apiUrl]
  */
-import { existsSync, readFileSync } from 'node:fs'
 
 import type { Address, ClusterUrl } from '@solana/kit'
 
@@ -28,19 +27,14 @@ import {
 } from '../src/amounts'
 import { HistoryApiError, InvalidAmountError } from '../src/errors'
 
+import { resolveRpcUrlFor } from './rpc-url'
+
 const WALLETS: { label: string; address: Address }[] = [
   { label: 'lmUSD holder', address: '2qNjaYNaecnXLD5tTZy8yu26RN5mEJwmfjHLtKqtoJs4' as Address },
   { label: 'lmSOL holder', address: '8NgGEQ8pYX58HX6hZKXWdBPQWjstjVEQa54ksHSLwPQp' as Address },
 ]
 
-function rpcUrl(): string {
-  const envPath = '/Users/ghost/lucent-frontend/.env.local'
-  if (existsSync(envPath)) {
-    const key = readFileSync(envPath, 'utf8').match(/^HELIUS_API_KEY=(.+)$/m)?.[1]?.trim()
-    if (key) return `https://mainnet.helius-rpc.com/?api-key=${key}`
-  }
-  return 'https://api.mainnet-beta.solana.com'
-}
+const rpcUrl = () => resolveRpcUrlFor('scripts/verify-position.ts')
 
 const apiUrl = process.argv[2] ?? 'http://localhost:3000'
 const client = createLucentClient({ rpcUrl: rpcUrl() as ClusterUrl, apiUrl })

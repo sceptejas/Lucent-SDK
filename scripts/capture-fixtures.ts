@@ -26,17 +26,12 @@ import { createSolanaRpc, type Address, type ClusterUrl } from '@solana/kit'
 import { MAINNET, POOLS } from '../src/config'
 import { findClaimRecordPda } from '../src/pdas'
 
+import { resolveRpcUrlFor } from './rpc-url'
+
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const fixturesDir = join(root, 'test', 'fixtures')
 
-function rpcUrl(): string {
-  const envPath = '/Users/ghost/lucent-frontend/.env.local'
-  if (existsSync(envPath)) {
-    const key = readFileSync(envPath, 'utf8').match(/^HELIUS_API_KEY=(.+)$/m)?.[1]?.trim()
-    if (key) return `https://mainnet.helius-rpc.com/?api-key=${key}`
-  }
-  return 'https://api.mainnet-beta.solana.com'
-}
+const rpcUrl = () => resolveRpcUrlFor('scripts/capture-fixtures.ts')
 
 // kit types the RPC API per cluster; an env-provided URL is a ClusterUrl.
 const rpc = createSolanaRpc(rpcUrl() as ClusterUrl)
