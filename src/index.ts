@@ -1,54 +1,35 @@
-// Types
-export type {
-  Pool,
-  ClaimRecord,
-  UserClaim,
-  Global,
-  ClaimState,
-  SupportedToken,
-} from './types'
-export { POOL_ID, TOKEN_DECIMALS, RATE_DENOM } from './types'
+/**
+ * Lucent SDK — public surface.
+ *
+ * Kit-native (`@solana/kit`), no `@solana/web3.js` 1.x, no Node globals: the
+ * package has to work in a browser, which is where the protocol's users are.
+ *
+ * Layers:
+ *   ./generated  Codama output, decoded and encoded from the deployed IDL
+ *   ./config     deployed addresses + the guard that they are the right ones
+ *   ./pdas       the two PDAs the IDL does not declare seeds for
+ *
+ * Everything above that — positions, history, transaction plans — is added in
+ * later phases of the v1 plan.
+ */
 
-// Addresses & PDAs
+export { SYTHSTAKING_PROGRAM_ADDRESS } from './generated/programs/sythstaking'
+
 export {
-  PROGRAM_ID,
-  USDC_MINT,
-  WSOL_MINT,
-  TOKEN_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  SYSTEM_PROGRAM_ID,
   MAINNET,
+  MAINNET_PROGRAM_ADDRESS,
+  DEVNET_PROGRAM_ADDRESS,
+  POOLS,
+  POOL_BY_MINT,
+  assertMainnetProgram,
+  type PoolId,
+  type PoolMetadata,
+} from './config'
+
+export {
   findGlobalPda,
-  findPoolPda,
+  findReceiptTokenPda,
   findReceiptMintPda,
+  findPoolPda,
   findClaimRecordPda,
-  findAssociatedTokenAddress,
-} from './addresses'
-
-// Raw instruction builders
-export {
-  stakeIx,
-  unstakeIx,
-  settleIx,
-  claimIx,
-  cancelUnstakeIx,
-} from './instructions'
-
-// Read functions
-export {
-  fetchPool,
-  fetchClaimRecord,
-  fetchClaimsForUser,
-  fetchAllClaimRecords,
-  getTokenBalance,
-  deriveClaimState,
-  queuePosition,
-  computeReceiptAmount,
-  computePayoutAmount,
-  receiptTokenPrice,
-  stakeTokenPrice,
-} from './queries'
-
-// High-level client
-export type { LucentWallet, StakeOptions, UnstakeOptions, TxResult } from './client'
-export { LucentClient } from './client'
+} from './pdas'

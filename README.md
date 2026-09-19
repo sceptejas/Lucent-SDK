@@ -1,111 +1,76 @@
-# @lucent/sdk
+# lucent-sdk
 
-TypeScript SDK for the [Lucent](https://lucent.finance) delta-neutral staking protocol on Solana.
+TypeScript SDK for the [Lucent](https://lucent.finance) staking protocol on Solana.
 
-## Installation
+**Kit-native.** Built on [`@solana/kit`](https://github.com/anza-xyz/kit) 8, generated
+from the deployed program's IDL with [Codama](https://github.com/codama-idl/codama),
+and safe to import in a browser — no `Buffer`, no `process`, no Node polyfills.
+
+> **v1.0.0 in progress.** The generated client, address configuration and PDA
+> derivation are in place and gated in CI. Positions, history and transaction plans
+> land in the next phases. `0.1.x` remains on npm and is **broken in browsers** (it
+> computed discriminators with `Buffer.from` at import time) — do not use it.
+
+## Install
 
 ```bash
-npm install lucent-sdk @solana/web3.js @solana/spl-token
+npm install lucent-sdk @solana/kit
 ```
 
-## Quick Start
+`@solana/kit` is a peer dependency, so your app pins one copy of the RPC layer.
+
+## Addresses
 
 ```ts
-import { Connection } from '@solana/web3.js'
-import { LucentClient } from 'lucent-sdk'
+import { MAINNET, POOLS, assertMainnetProgram } from 'lucent-sdk'
 
-const connection = new Connection('https://api.mainnet-beta.solana.com')
+MAINNET.USDC_POOL     // 3Cxcnyc7XqnfhnWu8FB7AU86VPZ2vifEvpju6aFveEG2
+MAINNET.LM_USD_MINT   // 3mGBapHWB7moS1nBeacwDxNMF8PLBBnPSi4armyE2Qbe
+MAINNET.SOL_POOL      // 7pbRQCzYR9NvXbdMDh7VgZD6qyzZzmpkckGQr1WPT5bS
+MAINNET.LM_SOL_MINT   // 2Eg1tC22K7yFRAHgog9sQLEppvPyd1qzsn7gr6vi6EgG
 
-// wallet must have { publicKey, signTransaction }
-// compatible with Phantom, Solflare, and @solana/wallet-adapter
-const client = new LucentClient(connection, wallet)
+POOLS[0]              // { symbol: 'USDC', decimals: 6, receiptSymbol: 'lmUSD', ... }
 
-// Stake 100 USDC
-const { signature } = await client.stake('USDC', 100)
-
-// Unstake 100 lmUSD
-const { signature } = await client.unstake('USDC', 100)
-
-// Claim all settled payouts
-const results = await client.claimAll()
-
-// Cancel a pending unstake
-await client.cancelUnstake(0, nonce)
+// Fails loudly if the generated client is addressed to a different program —
+// a devnet IDL sits next to the mainnet one upstream.
+assertMainnetProgram()
 ```
 
-## API Reference
+## PDA derivation
 
-### `LucentClient`
-
-High-level client — handles transaction building, signing and sending.
+Accounts are `Address` strings. PDA derivation is async, as in kit.
 
 ```ts
-new LucentClient(connection: Connection, wallet: LucentWallet)
+import { findPoolPda, findReceiptMintPda, findClaimRecordPda, findGlobalPda } from 'lucent-sdk'
+
+const [pool] = await findPoolPda(0)
+const [lmUsd] = await findReceiptMintPda(pool)
+const [claim] = await findClaimRecordPda(0, 7)
+const [global] = await findGlobalPda()
 ```
 
-| Method | Description |
-|---|---|
-| `stake(token, amount, opts?)` | Stake USDC or SOL, receive receipt tokens |
-| `unstake(token, amount, opts?)` | Burn receipt tokens, open a claim |
-| `claimAll()` | Claim all settled payouts for the wallet |
-| `cancelUnstake(poolId, nonce)` | Cancel a pending unstake, re-mint receipts |
-| `settle(poolId)` | Settle the FIFO-head claim (permissionless) |
+## Generated client
 
-### Raw Instruction Builders
+`src/generated` is Codama output built from `idls/sythstaking.json` — instruction
+builders, account codecs, event codecs and typed errors covering all 15
+instructions, 3 accounts, 10 events and 21 error codes. It is committed, and CI
+regenerates it and fails on any diff.
 
-For protocols that want full control over transaction construction:
+The generated fetchers validate account size and discriminator. They do **not**
+assert the account owner, so the SDK layer checks `SYTHSTAKING_PROGRAM_ADDRESS` on
+every read.
 
-```ts
-import { stakeIx, unstakeIx, claimIx, settleIx, cancelUnstakeIx } from '@lucent/sdk'
+## Development
+
+```bash
+npm run codegen        # regenerate src/generated from idls/sythstaking.json
+npm run verify:codegen # gate: discriminators, accounts, events and PDAs vs mainnet
+npm run verify:live    # read the deployed pools/global/claims from mainnet
+npm run verify         # everything CI runs
 ```
 
-Each function returns a `TransactionInstruction` ready to add to a `Transaction`.
+`idls/sythstaking.json` must be the **mainnet** IDL: upstream also carries one
+addressed to the devnet program, and generating from the wrong file produces a
+client that looks healthy and talks to the wrong program.
 
-### Read Functions
-
-```ts
-import { fetchPool, fetchClaimsForUser, deriveClaimState, receiptTokenPrice, stakeTokenPrice } from 'lucent-sdk'
-
-// Fetch pool state
-const pool = await fetchPool(connection, 0) // 0 = USDC, 1 = SOL
-
-// Price of 1 lmUSD in USDC (reflects accrued yield)
-const lmUsdPrice = receiptTokenPrice(pool.unstakeRate) // e.g. 1.01
-
-// Price of 1 USDC in lmUSD
-const usdcPrice = stakeTokenPrice(pool.stakeRate) // e.g. 1.0
-
-// Fetch all claims for a user
-const claims = await fetchClaimsForUser(connection, walletPublicKey)
-
-// Get claim state
-const state = deriveClaimState(claim) // 'pending' | 'claimable' | 'cancelled'
-```
-
-### Addresses
-
-```ts
-import { MAINNET, USDC_MINT, WSOL_MINT, PROGRAM_ID } from '@lucent/sdk'
-
-MAINNET.USDC_POOL    // USDC pool PDA
-MAINNET.SOL_POOL     // SOL pool PDA
-MAINNET.LM_USD_MINT  // lmUSD receipt token mint
-MAINNET.LM_SOL_MINT  // lmSOL receipt token mint
-```
-
-## Pool IDs
-
-| Pool | ID | Stake Token | Receipt Token |
-|---|---|---|---|
-| USDC | 0 | USDC | lmUSD |
-| SOL  | 1 | WSOL | lmSOL |
-
-## Notes
-
-- `fetchClaimsForUser` and `fetchAllClaimRecords` require a full-node RPC that supports `getProgramAccounts` (e.g. Helius, QuickNode). The public endpoint blocks this method.
-- For SOL staking, the SDK automatically wraps SOL into WSOL before staking.
-- Unstake settlements are processed by a keeper bot — typically within 4–5 hours.
-
-## License
-
-MIT
+MIT © Luminosity Labs

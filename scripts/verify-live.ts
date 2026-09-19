@@ -21,7 +21,7 @@ import { readFileSync, existsSync } from 'node:fs'
 import { createSolanaRpc, type Address } from '@solana/kit'
 
 import { fetchGlobal } from '../src/generated/accounts/global'
-import { fetchClaimRecord } from '../src/generated/accounts/claimRecord'
+import { fetchMaybeClaimRecord } from '../src/generated/accounts/claimRecord'
 import { fetchMaybePool, fetchPool } from '../src/generated/accounts/pool'
 import { findClaimRecordPda, findPoolPda } from '../src/pdas'
 
@@ -37,7 +37,8 @@ function rpcUrl(): string {
   const envPath = '/Users/ghost/lucent-frontend/.env.local'
   if (existsSync(envPath)) {
     const match = readFileSync(envPath, 'utf8').match(/^HELIUS_API_KEY=(.+)$/m)
-    if (match) return `https://mainnet.helius-rpc.com/?api-key=${match[1].trim()}`
+    const key = match?.[1]?.trim()
+    if (key) return `https://mainnet.helius-rpc.com/?api-key=${key}`
   }
   return 'https://api.mainnet-beta.solana.com'
 }
@@ -85,7 +86,7 @@ ok('decode without owner assertion still reports the owner',
 console.log('\n=== ClaimRecord at the current FIFO head ===')
 const usdc = await fetchPool(rpc, MAINNET.USDC_POOL)
 const [headPda] = await findClaimRecordPda(0, usdc.data.settleHead)
-const maybeClaim = await fetchClaimRecord(rpc, headPda)
+const maybeClaim = await fetchMaybeClaimRecord(rpc, headPda)
 ok('claim record at (pool 0, settleHead) decodes',
   maybeClaim.exists &&
     Number(maybeClaim.data.poolId) === 0 &&
@@ -104,7 +105,7 @@ try {
     ? 'decoded the lmUSD mint as a Pool — no validation!'
     : 'reported as non-existent')
 } catch (error) {
-  const message = (error as Error).message.split('\n')[0]
+  const message = error instanceof Error ? (error.message.split('\n').at(0) ?? '') : String(error)
   ok('foreign account rejected (throws on wrong shape)', true, message.slice(0, 80))
   console.log('        note: fetchMaybePool THROWS on an existing but wrong-shaped account;')
   console.log('        the SDK layer must catch this and surface a typed error, not a raw SolanaError.')

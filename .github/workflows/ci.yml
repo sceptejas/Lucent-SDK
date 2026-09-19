@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main, v1-kit]
+  pull_request:
+
+# Every gate here exists because something got past review without it:
+#   * a hand-rolled decoder that drifted from the program;
+#   * a package that could not be imported in a browser;
+#   * a tarball that shipped a dependency on itself.
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # A committed client that no longer matches the IDL is worse than no client:
+      # it encodes instructions the program will reject. Regenerate and fail on drift.
+      - name: Generated client is up to date
+        run: |
+          npm run codegen
+          git diff --exit-code src/generated
+
+      # Proves the client describes the *deployed* program, not a devnet one.
+      - name: Codegen gate (discriminators, accounts, events, PDAs)
+        run: npm run verify:codegen
+
+      - name: Build
+        run: npm run build
+
+      # Bundles for the browser, scans for Node globals, then runs the bundle with
+      # Buffer deleted. This is the check v0 would have failed.
+      - name: Browser compatibility
+        run: npm run check:browser
+
+      - name: Tarball (no self-dependency, entry points present, only dist ships)
+        run: npm run check:pack
+
+      - name: publint
+        run: npx publint
+
+      - name: Are the types wrong?
+        run: npx attw --pack .

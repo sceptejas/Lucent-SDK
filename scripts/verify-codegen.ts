@@ -43,7 +43,10 @@ const hex = (bytes: Readonly<Uint8Array> | number[]) => Buffer.from(bytes as Uin
 
 console.log('=== program address ===')
 ok('generated program address is mainnet', generated.SYTHSTAKING_PROGRAM_ADDRESS === EXPECTED_PROGRAM, generated.SYTHSTAKING_PROGRAM_ADDRESS)
-ok('generated program address is not devnet', generated.SYTHSTAKING_PROGRAM_ADDRESS !== DEVNET_PROGRAM)
+ok(
+  'generated program address is not devnet',
+  (generated.SYTHSTAKING_PROGRAM_ADDRESS as string) !== DEVNET_PROGRAM,
+)
 
 console.log(`\n=== instruction discriminators (${idl.instructions.length}) ===`)
 for (const instruction of idl.instructions) {
