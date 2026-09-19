@@ -148,5 +148,20 @@ try {
     error instanceof Error ? error.message.slice(0, 100) : String(error))
 }
 
+// ── keeper: advance the queue without spending
+const { settleAll, settleOnce } = await import('../src/keeper')
+console.log('\n=== keeper (dry run: simulates, never sends) ===')
+const outcomes = await settleAll(client, { dryRun: true, poolIds: [0] })
+for (const outcome of outcomes) {
+  console.log(`  pool ${outcome.poolId}: settled=${outcome.settled} simulated=${outcome.simulated ?? false} skipped=${outcome.skipped ?? '-'} ${outcome.detail ?? ''}`)
+}
+ok('keeper simulates a settlement without sending', outcomes.length > 0 && outcomes.every(o => !o.settled))
+ok('keeper reports a simulated settlement as such', outcomes.some(o => o.simulated === true) || outcomes.some(o => o.skipped === 'queue-empty'))
+
+// A pool with an empty queue must report that, not throw.
+const empty = await settleOnce(client, 1)
+console.log(`  pool 1: settled=${empty.settled} skipped=${empty.skipped ?? '-'} ${empty.detail ?? ''}`)
+ok('an empty queue is reported, not thrown', empty.settled === false, empty.skipped ?? '')
+
 console.log(`\n${failures === 0 ? 'ACTION CHECK PASSED' : `ACTION CHECK: ${failures} failure(s)`}`)
 process.exit(failures === 0 ? 0 : 1)

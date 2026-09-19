@@ -17,14 +17,24 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./keeper": {
+      "import": {
+        "types": "./dist/keeper.d.ts",
+        "default": "./dist/keeper.js"
+      },
+      "require": {
+        "types": "./dist/keeper.d.cts",
+        "default": "./dist/keeper.cjs"
+      }
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean --target es2020",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch --target es2020",
+    "build": "tsup src/index.ts src/keeper.ts --format esm,cjs --dts --clean --target es2020",
+    "dev": "tsup src/index.ts src/keeper.ts --format esm,cjs --dts --watch --target es2020",
     "typecheck": "tsc --noEmit",
     "codegen": "node scripts/codegen.mjs",
     "verify:codegen": "tsx scripts/verify-codegen.ts",
