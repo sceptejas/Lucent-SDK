@@ -29,7 +29,12 @@ import {
   type TransactionSigner,
 } from '@solana/kit'
 
-import { fetchHostedProfile, type HistoryApiConfig, type HostedProfile } from './api'
+import {
+  DEFAULT_HISTORY_API_URL,
+  fetchHostedProfile,
+  type HistoryApiConfig,
+  type HostedProfile,
+} from './api'
 import { MAINNET, POOLS, type PoolId, type PoolMetadata } from './config'
 import { InvalidAccountError, LucentError, RpcError } from './errors'
 import { findClaimRecordPda } from './pdas'
@@ -188,7 +193,10 @@ function toWebSocketUrl(url: string): string {
 
 export function createLucentClient(config: LucentClientConfig): LucentClient {
   const { apiUrl, fetch } = config
-  const historyConfig: HistoryApiConfig = { apiUrl: apiUrl ?? '', ...(fetch ? { fetch } : {}) }
+  const historyConfig: HistoryApiConfig = {
+    apiUrl: apiUrl ?? DEFAULT_HISTORY_API_URL,
+    ...(fetch ? { fetch } : {}),
+  }
 
   const rpc: Rpc<SolanaRpcApi> | undefined =
     config.rpc ?? (config.rpcUrl ? (createSolanaRpc(config.rpcUrl) as Rpc<SolanaRpcApi>) : undefined)

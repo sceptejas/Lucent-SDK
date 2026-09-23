@@ -24,6 +24,8 @@
  */
 import { HistoryApiError } from './errors'
 
+export const DEFAULT_HISTORY_API_URL = 'https://lmns.fi'
+
 /** One pool's position, as the API serialises it (amounts are base-unit strings). */
 export interface HostedPosition {
   poolId: number
