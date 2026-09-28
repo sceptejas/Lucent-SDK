@@ -81,11 +81,11 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sceptejas/Lucent-SDK_v0.git"
+    "url": "git+https://github.com/sceptejas/Lucent-SDK.git"
   },
   "homepage": "https://lucent.finance",
   "bugs": {
-    "url": "https://github.com/sceptejas/Lucent-SDK_v0/issues"
+    "url": "https://github.com/sceptejas/Lucent-SDK/issues"
   },
   "sideEffects": false,
   "engines": {
