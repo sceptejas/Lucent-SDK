@@ -1,0 +1,10 @@
+{
+  "idl": "idls/sythstaking.json",
+  "before": [],
+  "scripts": {
+    "js": {
+      "from": "@codama/renderers-js",
+      "args": [".codama-tmp"]
+    }
+  }
+}
