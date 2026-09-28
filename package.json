@@ -1,6 +1,6 @@
 {
   "name": "lucent-sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TypeScript SDK for the Lucent staking protocol on Solana \u2014 kit-native, generated from the deployed IDL",
   "author": "Luminosity Labs",
   "license": "MIT",
