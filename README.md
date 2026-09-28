@@ -9,7 +9,7 @@ and safe to import in a browser — no `Buffer`, no `process`, no Node polyfills
 ## Install
 
 ```bash
-npm install lucent-sdk @solana/kit
+npm install lucent-sdk@1.1.0 @solana/kit
 ```
 
 `@solana/kit` is a peer dependency, so your app pins one copy of the RPC layer.
